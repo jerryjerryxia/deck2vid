@@ -414,10 +414,11 @@
     updateTransport();
     if (!state.flags.generated) { state.flags.generated = true; runGenerate(); }
     else { $('#genShimmer').hidden = true; $('#genStatus').textContent = 'Preview'; }
+    syncGenReady();
   }
   function runGenerate() {
     const sh = $('#genShimmer'); if (!sh) return;
-    sh.hidden = false; $('#genStatus').textContent = 'Generating…';
+    sh.hidden = false; $('#genStatus').textContent = 'Generating…'; syncGenReady();
     const fill = $('#genBarFill'); if (fill) fill.style.width = '0%';
     const steps = ['Compositing scenes…', 'Synthesizing voiceover…', 'Rendering avatar…', 'Finalizing…'];
     let p = 0;
@@ -428,9 +429,15 @@
       const msg = $('#genMsg'); if (msg) msg.textContent = steps[Math.min(steps.length - 1, Math.floor(p / (100 / steps.length)))];
       if (p >= 100) {
         clearInterval(runGenerate._iv);
-        if (state.stage === 'generate') { sh.hidden = true; $('#genStatus').textContent = 'Preview'; }
+        if (state.stage === 'generate') { sh.hidden = true; $('#genStatus').textContent = 'Preview'; syncGenReady(); }
       }
     }, 260);
+  }
+  // big center play button shown once the video is "generated" and paused
+  function syncGenReady() {
+    const gr = $('#genReady'); if (!gr) return;
+    const shimmerHidden = !$('#genShimmer') || $('#genShimmer').hidden;
+    gr.hidden = !(state.stage === 'generate' && shimmerHidden && !state.playing);
   }
 
   /* ---- Director chat — lives inside the Studio inspector ---- */
@@ -673,6 +680,7 @@
       state._playIcon = pic;
       ['#genPlay', '#studioPlay'].forEach(sel => { const b = $(sel); if (b) { b.innerHTML = icon(pic); b.setAttribute('aria-label', state.playing ? 'Pause' : 'Play'); } });
     }
+    syncGenReady();
   }
 
   function togglePlay() { state.playing ? stopPlay() : startPlay(); }
@@ -810,7 +818,7 @@
       const chip = e.target.closest('[data-chip]'); if (chip) { sendMessage(chip.textContent); return; }
       const thumb = e.target.closest('[data-thumb]'); if (thumb) { selectScene(+thumb.dataset.thumb); return; }
       const rail = e.target.closest('[data-rail]'); if (rail) { selectScene(+rail.dataset.rail); return; }
-      if (e.target.closest('#genPlay') || e.target.closest('#studioPlay')) { togglePlay(); return; }
+      if (e.target.closest('#genPlay') || e.target.closest('#studioPlay') || e.target.closest('#genReady')) { togglePlay(); return; }
       const tab = e.target.closest('.insp-tab'); if (tab) { state.inspTab = tab.dataset.tab; renderInspector(); return; }
       const av = e.target.closest('[data-avatar]'); if (av) { state.settings.avatarId = av.dataset.avatar; renderInspector(); renderFrame($('#studioStage'), state.currentScene); renderAllRailMinis(); return; }
       const vo = e.target.closest('[data-voice]'); if (vo) { state.settings.voiceId = vo.dataset.voice; renderInspector(); renderTimeline(); return; }
