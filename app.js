@@ -53,6 +53,7 @@
     {
       id: 'founder', name: "The Founder's Dilemma", kind: 'Article', icon: 'i-article',
       meta: '~1,200 words · Essay',
+      brief: "A punchy narrative explainer of a startup founder's raise-vs-control dilemma, for an entrepreneurial audience.",
       scenes: [
         scn('Cold Open', 'title', 'Every founder faces one defining choice.', 5, 'ember'),
         scn('The Setup', 'talking-head', 'Meet Alex — three years in, real traction, and a term sheet on the table.', 12, 'slate'),
@@ -65,6 +66,7 @@
     {
       id: 'q3', name: 'Atlas 2.0 Launch', kind: 'Deck', icon: 'i-deck',
       meta: '18 slides · Keynote',
+      brief: 'An upbeat product-launch video introducing Atlas 2.0 to prospective customers, about 60 seconds.',
       scenes: [
         scn('Title', 'title', 'Introducing Atlas 2.0.', 5, 'ember'),
         scn('The Problem', 'talking-head', 'Teams lose six hours a week just switching between tools.', 11, 'slate'),
@@ -77,6 +79,7 @@
     {
       id: 'protect', name: 'Protecting Your Content', kind: 'PDF', icon: 'i-pdf',
       meta: '9 pages · PDF',
+      brief: 'A clear, reassuring explainer on protecting your content from piracy, for rights-holders.',
       scenes: [
         scn('Title', 'title', 'Protecting what you create.', 5, 'ember'),
         scn('Why It Matters', 'talking-head', 'Every minute, 500 hours of video are uploaded — some of it yours.', 11, 'slate'),
@@ -125,6 +128,7 @@
     stage: 'intake',
     maxReached: 0,
     source: null,
+    brief: '',
     project: 'Untitled project',
     scenes: [],
     settings: { avatarId: 'nova', voiceId: 'nova', captions: true, tone: 'Balanced', music: false,
@@ -254,35 +258,80 @@
         </button>`).join('');
       grid.dataset.built = '1';
     }
+    // reset the composer for a fresh start
+    pendingSource = null; renderAttachChip();
+    if ($('#briefInput')) $('#briefInput').value = '';
   }
 
-  function loadSource(source, scenes) {
-    state.source = source;
-    state.project = source.name;
+  let pendingSource = null;   // intake staging: { name, kind, scenes }
+  const truncate = (t, n) => (t.length > n ? t.slice(0, n).trim() + '…' : t);
+
+  function loadProject(brief, source, scenes, name) {
+    state.brief = (brief || '').trim();
+    state.source = source;                 // { name, kind } or null
+    state.project = name;
     state.scenes = scenes.map(s => ({ ...s, id: uid(), chart: s.chart ? [...s.chart] : undefined }));
     state.currentScene = 0; state.currentTime = 0; state._lastRender = -1;
     state.settings.captions = true; state.settings.tone = 'Balanced'; state.settings.music = false;
     state.settings.voiceId = 'nova'; state.settings.avatarId = 'nova';
     state.flags = { analyzed: false, greeted: false, generated: false };
     state.maxReached = stageIdx('comprehend');   // lock later stages for the fresh project
-    state.chat = []; $('#genThumbs').innerHTML = '';
+    // the intake brief becomes the first turn of the Director conversation
+    state.chat = state.brief ? [{ who: 'me', html: esc(state.brief) }] : [];
+    $('#genThumbs').innerHTML = '';
     goTo('comprehend');
   }
-  const pickSample = (id) => { const s = SAMPLES.find(x => x.id === id); loadSource({ name: s.name, kind: s.kind }, s.scenes); };
-  function handleFile(file) {
+
+  const pickSample = (id) => { const s = SAMPLES.find(x => x.id === id); loadProject(s.brief, { name: s.name, kind: s.kind }, s.scenes, s.name); };
+
+  function attachFile(file) {
     // Only the NAME is read as a placeholder — the file is never parsed or uploaded.
     const name = file.name.replace(/\.[^.]+$/, '');
     const ext = (file.name.split('.').pop() || '').toUpperCase();
-    loadSource({ name, kind: ext || 'File' }, SAMPLES[0].scenes);
-    toast('Loaded “' + file.name + '” (prototype — content not parsed)', 'i-spark');
+    pendingSource = { name, kind: ext || 'File', scenes: SAMPLES[0].scenes };
+    renderAttachChip();
+    toast('Attached “' + file.name + '” (prototype — content not parsed)', 'i-spark');
+  }
+  function renderAttachChip() {
+    const chip = $('#attachChip'), hint = $('#attachHint'), btn = $('#attachBtn');
+    if (!chip) return;
+    if (pendingSource) {
+      chip.hidden = false; if (hint) hint.hidden = true; if (btn) btn.hidden = true;
+      chip.innerHTML = `<span class="fname">${esc(pendingSource.name)}</span><span class="fkind">${esc(pendingSource.kind)}</span>` +
+                       `<button class="chip-x" id="detachBtn" type="button" aria-label="Remove attached file">${icon('i-x')}</button>`;
+    } else {
+      chip.hidden = true; chip.innerHTML = ''; if (hint) hint.hidden = false; if (btn) btn.hidden = false;
+    }
+  }
+  function deriveTitle(brief) {
+    const t = (brief || '').trim().replace(/\s+/g, ' ');
+    if (!t) return 'Untitled project';
+    const w = t.split(' ').slice(0, 6).join(' ');
+    return (w.length > 48 ? w.slice(0, 48) + '…' : w).replace(/[.,;:]$/, '');
+  }
+  function createFromComposer() {
+    const brief = (($('#briefInput') && $('#briefInput').value) || '').trim();
+    if (!brief && !pendingSource) { toast('Add a description or attach a file first', 'i-spark'); if ($('#briefInput')) $('#briefInput').focus(); return; }
+    const source = pendingSource ? { name: pendingSource.name, kind: pendingSource.kind } : null;
+    const scenes = pendingSource ? pendingSource.scenes : SAMPLES[0].scenes;
+    loadProject(brief, source, scenes, source ? source.name : deriveTitle(brief));
+  }
+  function sourceChipsHTML() {
+    const chips = [];
+    if (state.brief) chips.push(`<span class="src-chip brief" title="${esc(state.brief)}">${icon('i-spark')} <span class="val">Brief: “${esc(truncate(state.brief, 64))}”</span></span>`);
+    chips.push(state.source
+      ? `<span class="src-chip">${icon('i-article')} <span class="val">${esc(state.source.name)} · ${esc(state.source.kind)}</span></span>`
+      : `<span class="src-chip">${icon('i-spark')} <span class="val">From your description</span></span>`);
+    return chips.join('');
   }
 
   /* =========================================================
      STAGE 2 · COMPREHEND
      ========================================================= */
   function enterComprehend() {
-    $('#anSource').textContent = '“' + state.project + '”';
-    $('#flowSourceName').textContent = state.project;
+    const chips = sourceChipsHTML();
+    $('#anFrom').innerHTML = chips;
+    $('#sourcesRecap').innerHTML = chips;
     if (!state.flags.analyzed) runAnalyze();
     else { $('#analyzing').hidden = true; $('#flow').hidden = false; renderFlow(); }
   }
@@ -432,7 +481,12 @@
     $('#studioProj').textContent = state.project;
     if (!state.flags.greeted) {
       state.flags.greeted = true;
-      state.chat.push({ who: 'ai', html: `I've drafted <b>${esc(state.project)}</b> as ${state.scenes.length} scenes (~${fmt(totalDur())}). Edit any scene on the left, or tell me what to change — tone, pacing, captions, voice.` });
+      let from;
+      if (state.brief && state.source) from = `your brief and <b>${esc(state.source.name)}</b>`;
+      else if (state.brief) from = 'your brief';
+      else if (state.source) from = `<b>${esc(state.source.name)}</b>`;
+      else from = 'your inputs';
+      state.chat.push({ who: 'ai', html: `Working from ${from}, I've drafted <b>${esc(state.project)}</b> as ${state.scenes.length} scenes (~${fmt(totalDur())}). Edit any scene on the left, or tell me what to change — tone, pacing, captions, voice.` });
     }
     renderRail(); renderTimeline(); renderInspector();
     renderFrame($('#studioStage'), state.currentScene);
@@ -768,6 +822,7 @@
       if (e.target.closest('#btnExport')) { state.settings.captions = $('#expCaptions').checked; runExport(); return; }
       if (e.target.closest('#btnDownload')) { downloadPoster(); return; }
       if (e.target.closest('#btnRestart')) { restart(); return; }
+      if (e.target.closest('#detachBtn')) { pendingSource = null; renderAttachChip(); return; }
     });
 
     // flow inline editing
@@ -799,13 +854,16 @@
     tlt.addEventListener('pointerdown', (e) => { const lane = $('#tlSeek'); if (!lane || (e.target !== lane && !lane.contains(e.target))) return; e.preventDefault(); lane.focus(); seekLane(e); window.addEventListener('pointermove', seekLane); window.addEventListener('pointerup', endLane); });
     tlt.addEventListener('keydown', (e) => { if (e.target.id === 'tlSeek') seekKey(e); });
 
-    // dropzone
-    const dz = $('#dropzone'), fi = $('#fileInput');
-    fi.addEventListener('change', () => { if (fi.files[0]) handleFile(fi.files[0]); });
-    dz.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fi.click(); } });
-    ['dragenter', 'dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('drag'); }));
-    ['dragleave', 'drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('drag'); }));
-    dz.addEventListener('drop', e => { const f = e.dataTransfer.files[0]; if (f) handleFile(f); });
+    // intake composer (describe + attach)
+    const fi = $('#fileInput');
+    fi.addEventListener('change', () => { if (fi.files[0]) attachFile(fi.files[0]); fi.value = ''; });
+    $('#attachBtn').addEventListener('click', () => fi.click());
+    $('#btnCreate').addEventListener('click', createFromComposer);
+    $('#briefInput').addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); createFromComposer(); } });
+    const comp = $('#composer');
+    ['dragenter', 'dragover'].forEach(ev => comp.addEventListener(ev, e => { e.preventDefault(); comp.classList.add('drag'); }));
+    comp.addEventListener('dragleave', e => { if (!comp.contains(e.relatedTarget)) comp.classList.remove('drag'); });
+    comp.addEventListener('drop', e => { e.preventDefault(); comp.classList.remove('drag'); const f = e.dataTransfer.files[0]; if (f) attachFile(f); });
 
     // spacebar = play/pause on generate/studio
     document.addEventListener('keydown', (e) => {
@@ -817,9 +875,9 @@
   function restart() {
     stopPlay();
     if (state._genTimer) { clearTimeout(state._genTimer); state._genTimer = null; }
-    state.source = null; state.scenes = []; state.maxReached = 0;
+    state.source = null; state.brief = ''; state.scenes = []; state.maxReached = 0;
     state.flags = { analyzed: false, greeted: false, generated: false };
-    state.chat = [];
+    state.chat = []; pendingSource = null;
     goTo('intake');
   }
 

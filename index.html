@@ -69,17 +69,25 @@
   <section class="stage" data-stage="intake" hidden>
     <div class="intake-wrap">
       <div class="intake-head">
-        <span class="eyebrow"><svg class="ic"><use href="#i-spark"/></svg> From source to screen</span>
-        <h1>Turn any <em>deck</em> or <em>article</em><br/>into a video.</h1>
-        <p class="lede">Drop in a slide deck or a piece of writing. Deck2Vid reads it, understands it, and drafts a video you can shape in chat — then polish in the studio.</p>
+        <span class="eyebrow"><svg class="ic"><use href="#i-spark"/></svg> Tell us what to make</span>
+        <h1>What are we <em>making</em> today?</h1>
+        <p class="lede">Describe the video you want — then attach a deck or article to build it from. Deck2Vid plans it from <b>both</b>.</p>
       </div>
 
-      <label class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Upload a file">
-        <input type="file" id="fileInput" accept=".pdf,.pptx,.key,.docx,.txt,.md" hidden />
-        <span class="dz-icon"><svg class="ic"><use href="#i-upload"/></svg></span>
-        <span class="dz-title">Drag &amp; drop your source</span>
-        <span class="dz-sub">or <u>browse files</u> — PDF, PPTX, Keynote, DOCX, Markdown</span>
-      </label>
+      <div class="composer" id="composer">
+        <textarea id="briefInput" class="composer-input" rows="3" aria-label="Describe your video"
+          placeholder="Describe your video — topic, audience, tone, length, key points…&#10;e.g. “A 60-second upbeat explainer of our Q3 launch, for prospective customers.”"></textarea>
+        <div class="composer-bar">
+          <div class="composer-left">
+            <input type="file" id="fileInput" accept=".pdf,.pptx,.key,.docx,.txt,.md" hidden />
+            <button class="attach-btn" id="attachBtn" type="button"><svg class="ic"><use href="#i-upload"/></svg> Attach a deck or article</button>
+            <span class="attach-hint" id="attachHint">or drag &amp; drop a file</span>
+            <span class="attach-chip" id="attachChip" hidden></span>
+          </div>
+          <button class="btn primary" id="btnCreate">Create video <svg class="ic"><use href="#i-arrow-r"/></svg></button>
+        </div>
+        <div class="composer-drop" id="composerDrop"><svg class="ic"><use href="#i-upload"/></svg> Drop to attach your source</div>
+      </div>
 
       <div class="samples">
         <div class="samples-label"><span>Or start from a sample</span></div>
@@ -95,9 +103,10 @@
       <div class="analyzing" id="analyzing" hidden>
         <div class="analyzing-card">
           <div class="pulse-orb"><svg class="ic"><use href="#i-spark"/></svg></div>
-          <h2>Reading <span id="anSource">your source</span></h2>
+          <h2>Planning your video</h2>
+          <div class="an-from" id="anFrom"></div>
           <ul class="an-steps" id="anSteps">
-            <li data-step><span class="an-dot"></span>Parsing content &amp; structure</li>
+            <li data-step><span class="an-dot"></span>Reading your brief &amp; source</li>
             <li data-step><span class="an-dot"></span>Extracting the key ideas</li>
             <li data-step><span class="an-dot"></span>Grouping into scenes</li>
             <li data-step><span class="an-dot"></span>Drafting a video flow</li>
@@ -110,7 +119,8 @@
           <div>
             <span class="eyebrow"><svg class="ic"><use href="#i-layers"/></svg> Comprehension</span>
             <h2>Here's the flow we drafted</h2>
-            <p class="lede sm">We turned <b id="flowSourceName">your source</b> into a scene-by-scene outline. Reorder, edit, or add scenes — then generate.</p>
+            <p class="lede sm">Planned from your inputs into a scene-by-scene outline. Reorder, edit, or add scenes — then open the Studio.</p>
+            <div class="sources-recap" id="sourcesRecap"></div>
           </div>
           <div class="flow-summary" id="flowSummary"></div>
         </div>
