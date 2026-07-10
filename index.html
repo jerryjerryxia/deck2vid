@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Deck2Vid — Studio</title>
+<meta name="description" content="Turn any deck or article into a video. Prototype." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Schibsted+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- ============ ICON SPRITE ============ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-mark" viewBox="0 0 24 24"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4h9A1.5 1.5 0 0 1 16 5.5v13A1.5 1.5 0 0 1 14.5 20h-9A1.5 1.5 0 0 1 4 18.5z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M16 9.2l3.4-2.1a.8.8 0 0 1 1.2.68v8.44a.8.8 0 0 1-1.2.68L16 15.6z" fill="currentColor"/></symbol>
+    <symbol id="i-arrow-r" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-arrow-l" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M8 8l4-4 4 4"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></symbol>
+    <symbol id="i-deck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></symbol>
+    <symbol id="i-article" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h5"/></symbol>
+    <symbol id="i-pdf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 13h1.5a1.5 1.5 0 0 1 0 3H9zM9 13v6"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 5.2c0-.9 1-1.5 1.8-1L19 10.3c.8.5.8 1.7 0 2.2L8.8 18.8c-.8.5-1.8-.1-1.8-1z" fill="currentColor"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/></symbol>
+    <symbol id="i-grip" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.4"/><circle cx="15" cy="6" r="1.4"/><circle cx="9" cy="12" r="1.4"/><circle cx="15" cy="12" r="1.4"/><circle cx="9" cy="18" r="1.4"/><circle cx="15" cy="18" r="1.4"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l16-7-7 16-2.5-6.5z"/></symbol>
+    <symbol id="i-export" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-6 8-6s8 2 8 6"/></symbol>
+    <symbol id="i-mic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4M9 21h6"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="9" cy="9" r="1.6"/><path d="M20 15l-4.5-4.5L6 20"/></symbol>
+    <symbol id="i-cc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 10.2a2.2 2.2 0 1 0 0 3.6M17 10.2a2.2 2.2 0 1 0 0 3.6"/></symbol>
+    <symbol id="i-script" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M9 9h6M9 13h6M9 17h4"/></symbol>
+    <symbol id="i-music" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></symbol>
+    <symbol id="i-undo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7L4 12l5 5"/><path d="M4 12h11a5 5 0 0 1 0 10h-2"/></symbol>
+    <symbol id="i-redo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7l5 5-5 5"/><path d="M20 12H9a5 5 0 0 0 0 10h2"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M8 11l4 4 4-4"/><path d="M5 20h14"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-.5 4"/><path d="M20 4v5h-5"/></symbol>
+  </defs>
+</svg>
+
+<!-- ============ TOP BAR ============ -->
+<header class="topbar">
+  <a class="brand" href="#" data-nav="intake" aria-label="Deck2Vid home">
+    <span class="brand-mark"><svg class="ic"><use href="#i-mark"/></svg></span>
+    <span class="brand-name">Deck2Vid</span>
+    <span class="brand-tag">studio</span>
+  </a>
+
+  <nav class="stepper" id="stepper" aria-label="Workflow progress"></nav>
+
+  <div class="topbar-actions">
+    <button class="btn ghost sm" id="btnRestart" title="Start over"><svg class="ic"><use href="#i-refresh"/></svg><span>New</span></button>
+    <span class="proto-pill">Prototype</span>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ============ STAGE 1 · INTAKE ============ -->
+  <section class="stage" data-stage="intake" hidden>
+    <div class="intake-wrap">
+      <div class="intake-head">
+        <span class="eyebrow"><svg class="ic"><use href="#i-spark"/></svg> From source to screen</span>
+        <h1>Turn any <em>deck</em> or <em>article</em><br/>into a video.</h1>
+        <p class="lede">Drop in a slide deck or a piece of writing. Deck2Vid reads it, understands it, and drafts a video you can shape in chat — then polish in the studio.</p>
+      </div>
+
+      <label class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Upload a file">
+        <input type="file" id="fileInput" accept=".pdf,.pptx,.key,.docx,.txt,.md" hidden />
+        <span class="dz-icon"><svg class="ic"><use href="#i-upload"/></svg></span>
+        <span class="dz-title">Drag &amp; drop your source</span>
+        <span class="dz-sub">or <u>browse files</u> — PDF, PPTX, Keynote, DOCX, Markdown</span>
+      </label>
+
+      <div class="samples">
+        <div class="samples-label"><span>Or start from a sample</span></div>
+        <div class="samples-grid" id="samplesGrid"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STAGE 2 · COMPREHEND ============ -->
+  <section class="stage" data-stage="comprehend" hidden>
+    <div class="comprehend-wrap">
+
+      <div class="analyzing" id="analyzing" hidden>
+        <div class="analyzing-card">
+          <div class="pulse-orb"><svg class="ic"><use href="#i-spark"/></svg></div>
+          <h2>Reading <span id="anSource">your source</span></h2>
+          <ul class="an-steps" id="anSteps">
+            <li data-step><span class="an-dot"></span>Parsing content &amp; structure</li>
+            <li data-step><span class="an-dot"></span>Extracting the key ideas</li>
+            <li data-step><span class="an-dot"></span>Grouping into scenes</li>
+            <li data-step><span class="an-dot"></span>Drafting a video flow</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="flow" id="flow" hidden>
+        <div class="flow-head">
+          <div>
+            <span class="eyebrow"><svg class="ic"><use href="#i-layers"/></svg> Comprehension</span>
+            <h2>Here's the flow we drafted</h2>
+            <p class="lede sm">We turned <b id="flowSourceName">your source</b> into a scene-by-scene outline. Reorder, edit, or add scenes — then generate.</p>
+          </div>
+          <div class="flow-summary" id="flowSummary"></div>
+        </div>
+
+        <ol class="scene-list" id="sceneList" aria-label="Draft scenes"></ol>
+
+        <div class="flow-foot">
+          <button class="btn ghost" data-add-scene><svg class="ic"><use href="#i-plus"/></svg> Add scene</button>
+          <button class="btn primary lg" data-nav="edit">Open in Studio <svg class="ic"><use href="#i-arrow-r"/></svg></button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ STAGE 4 · GENERATE (render + preview) ============ -->
+  <section class="stage" data-stage="generate" hidden>
+    <div class="gen-render">
+      <div class="preview-head">
+        <div class="pv-meta">
+          <span class="pv-title" id="genProjName">Your video</span>
+          <span class="pv-badge" id="genStatus">Preview</span>
+        </div>
+        <div class="gen-actions">
+          <button class="btn ghost sm" data-nav="edit"><svg class="ic"><use href="#i-arrow-l"/></svg> Studio</button>
+          <button class="btn primary" data-nav="export">Export <svg class="ic"><use href="#i-arrow-r"/></svg></button>
+        </div>
+      </div>
+
+      <div class="stage-viewport big" id="genViewport">
+        <div class="video-stage" id="genStage"></div>
+        <div class="gen-shimmer" id="genShimmer" hidden>
+          <div class="gen-orb"><svg class="ic"><use href="#i-spark"/></svg></div>
+          <div class="gen-msg" id="genMsg">Generating your video…</div>
+          <div class="gen-bar"><div class="gen-bar-fill" id="genBarFill"></div></div>
+        </div>
+      </div>
+
+      <div class="pv-transport">
+        <button class="icon-btn" id="genPlay" aria-label="Play"><svg class="ic"><use href="#i-play"/></svg></button>
+        <span class="tc" id="genTC">0:00</span>
+        <div class="scrub" id="genScrub" role="slider" tabindex="0" aria-label="Seek" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0"><div class="scrub-fill" id="genScrubFill"></div></div>
+        <span class="tc" id="genDur">0:00</span>
+      </div>
+
+      <div class="thumb-strip" id="genThumbs" aria-label="Scene thumbnails"></div>
+    </div>
+  </section>
+
+  <!-- ============ STAGE 3 · STUDIO EDIT (+ Director chat) ============ -->
+  <section class="stage stage-studio" data-stage="edit" hidden>
+    <div class="studio">
+
+      <div class="studio-toolbar">
+        <div class="tb-left">
+          <span class="tb-project" id="studioProj">Untitled project</span>
+        </div>
+        <div class="tb-center">
+          <button class="icon-btn" title="Undo (coming soon)" aria-label="Undo" disabled><svg class="ic"><use href="#i-undo"/></svg></button>
+          <button class="icon-btn" title="Redo (coming soon)" aria-label="Redo" disabled><svg class="ic"><use href="#i-redo"/></svg></button>
+        </div>
+        <div class="tb-right">
+          <button class="btn ghost sm" data-nav="comprehend"><svg class="ic"><use href="#i-arrow-l"/></svg> Storyboard</button>
+          <button class="btn primary sm" data-nav="generate">Generate <svg class="ic"><use href="#i-arrow-r"/></svg></button>
+        </div>
+      </div>
+
+      <div class="studio-body">
+        <!-- left: scenes -->
+        <aside class="studio-scenes">
+          <div class="panel-label">Scenes</div>
+          <div class="scene-rail" id="sceneRail"></div>
+          <button class="rail-add" data-add-scene><svg class="ic"><use href="#i-plus"/></svg> Add scene</button>
+        </aside>
+
+        <!-- center: canvas + timeline -->
+        <div class="studio-center">
+          <div class="canvas-area">
+            <div class="stage-viewport big">
+              <div class="video-stage" id="studioStage"></div>
+            </div>
+          </div>
+
+          <div class="timeline" id="timeline">
+            <div class="tl-transport">
+              <button class="icon-btn" id="studioPlay" aria-label="Play"><svg class="ic"><use href="#i-play"/></svg></button>
+              <span class="tc" id="studioTC">0:00</span>
+              <span class="tc dim">/ <span id="studioDur">0:00</span></span>
+            </div>
+            <div class="tl-tracks" id="tlTracks"></div>
+          </div>
+        </div>
+
+        <!-- right: inspector -->
+        <aside class="studio-inspector">
+          <div class="insp-tabs" id="inspTabs" role="tablist">
+            <button class="insp-tab active" data-tab="script" role="tab" aria-selected="true"><svg class="ic"><use href="#i-script"/></svg> Script</button>
+            <button class="insp-tab" data-tab="avatar" role="tab" aria-selected="false"><svg class="ic"><use href="#i-user"/></svg> Avatar</button>
+            <button class="insp-tab" data-tab="voice" role="tab" aria-selected="false"><svg class="ic"><use href="#i-mic"/></svg> Voice</button>
+            <button class="insp-tab" data-tab="bg" role="tab" aria-selected="false"><svg class="ic"><use href="#i-image"/></svg> Scene</button>
+            <button class="insp-tab" data-tab="chat" role="tab" aria-selected="false"><svg class="ic"><use href="#i-spark"/></svg> Director</button>
+          </div>
+          <div class="insp-body" id="inspBody"></div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STAGE 5 · EXPORT ============ -->
+  <section class="stage" data-stage="export" hidden>
+    <div class="export-wrap">
+      <div class="export-card" id="exportCard">
+        <!-- options view -->
+        <div class="export-options" id="exportOptions">
+          <div class="export-side">
+            <span class="eyebrow"><svg class="ic"><use href="#i-export"/></svg> Export</span>
+            <h2>Ship your video</h2>
+            <p class="lede sm">Pick a format and quality. This prototype simulates the render — no file is actually produced.</p>
+
+            <div class="opt-group">
+              <span class="opt-label" id="lblFormat">Format</span>
+              <div class="seg" data-opt="format" role="radiogroup" aria-labelledby="lblFormat">
+                <button class="seg-btn active" data-val="MP4" role="radio" aria-checked="true">MP4</button>
+                <button class="seg-btn" data-val="MOV" role="radio" aria-checked="false">MOV</button>
+                <button class="seg-btn" data-val="GIF" role="radio" aria-checked="false">GIF</button>
+              </div>
+            </div>
+            <div class="opt-group">
+              <span class="opt-label" id="lblRes">Resolution</span>
+              <div class="seg" data-opt="res" role="radiogroup" aria-labelledby="lblRes">
+                <button class="seg-btn" data-val="720p" role="radio" aria-checked="false">720p</button>
+                <button class="seg-btn active" data-val="1080p" role="radio" aria-checked="true">1080p</button>
+                <button class="seg-btn" data-val="4K" role="radio" aria-checked="false">4K</button>
+              </div>
+            </div>
+            <div class="opt-group">
+              <span class="opt-label" id="lblAspect">Aspect ratio</span>
+              <div class="seg" data-opt="aspect" role="radiogroup" aria-labelledby="lblAspect">
+                <button class="seg-btn active" data-val="16:9" role="radio" aria-checked="true">16:9</button>
+                <button class="seg-btn" data-val="9:16" role="radio" aria-checked="false">9:16</button>
+                <button class="seg-btn" data-val="1:1" role="radio" aria-checked="false">1:1</button>
+              </div>
+            </div>
+            <label class="opt-check"><input type="checkbox" id="expCaptions" checked/> <span>Burn in captions</span></label>
+
+            <button class="btn primary lg block" id="btnExport">Export video <svg class="ic"><use href="#i-arrow-r"/></svg></button>
+          </div>
+
+          <div class="export-preview">
+            <div class="poster" id="exportPoster"></div>
+            <div class="poster-meta" id="posterMeta"></div>
+          </div>
+        </div>
+
+        <!-- progress / done view -->
+        <div class="export-render" id="exportRender" hidden>
+          <div class="render-visual" id="renderVisual"></div>
+          <h2 id="renderTitle">Rendering…</h2>
+          <p class="lede sm" id="renderSub">Compositing scenes, voice and captions.</p>
+          <div class="render-bar"><div class="render-fill" id="renderFill"></div></div>
+          <div class="render-actions" id="renderActions" hidden>
+            <button class="btn primary lg" id="btnDownload"><svg class="ic"><use href="#i-download"/></svg> Download</button>
+            <button class="btn ghost" data-nav="edit">Back to Studio</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="app.js"></script>
+</body>
+</html>
